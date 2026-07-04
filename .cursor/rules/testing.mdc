@@ -1,0 +1,115 @@
+---
+description: extend_platform 后端测试规范（Java8 / SpringBoot2.3 / MyBatis / SpringCloud）。编写、修改任何测试或被测代码时必须遵守。
+globs: ["**/*.java"]
+alwaysApply: true
+---
+
+# 后端测试规范（extend_platform）
+
+本项目是金融级 ETC 微服务平台（清分/结算/对账/发票/划转），**算错一分钱都不可接受**。
+测试的第一目标是：让人能用最低成本审查“断言是否正确”，其余交给自动化。
+
+## 0. 铁律（任何情况下都不许违反）
+
+1. **禁止为了让测试变绿而修改断言去迁就错误实现。** 实现与预期冲突时，先停下来向人确认，而不是改测试凑绿。
+2. **金额一律用 `BigDecimal`**，禁止 `double`/`float` 参与金额运算；金额断言必须用 `isEqualByComparingTo`（忽略标度差异，如 1.0 与 1.00）。
+3. **禁止用 H2 等内存库测 MyBatis**（本项目是 MySQL 8 特有语法）。持久层/集成测试一律用 Testcontainers 起真实 MySQL 8。
+4. **禁止在测试里真连外部系统**（银联/省中心/CBS/乐企/e通等）。一律用 WireMock 打桩。
+5. **新增或修改被测代码时，必须同步补/改对应测试**（改到哪测到哪）。
+
+## 1. 强制工作流（写测试必须按此顺序）
+
+### 第一步：先产出「测试意图表」，等人批准，不要先写代码
+用如下 Markdown 表格列出打算测试的场景，输出到对话里让人审查：
+
+| 场景 | 输入 | 期望结果 | 类型(正常/边界/异常/幂等) |
+|---|---|---|---|
+| 示例：正常清分 | 一笔100元交易 | 商户99.4/平台0.6，状态=已清分 | 正常 |
+
+要求场景至少覆盖：正常路径、边界值（0、负数、极大值、空值）、异常路径、幂等重复提交。
+**在人明确回复“批准/继续”之前，不要生成测试代码。**
+
+### 第二步：人批准后，再把每一行意图落地成测试代码（按第3节选择形式）。
+
+### 第三步：自验证并汇报
+运行测试 + JaCoCo 覆盖率，把结果贴出来。核心金融包必须达标（见第5节）。
+
+### 第四步：把“人需要审查的期望值”集中呈现
+明确告诉人：“请审查以下期望值：① 意图表 ② 黄金文件 xxx.json / 数据表”，方便人快速扫读。
+
+## 2. 分层与工具选型
+
+| 层级 | 测什么 | 工具 | 依赖处理 |
+|---|---|---|---|
+| 单元测试(主力,~70%) | 纯业务逻辑:金额计算、清分规则、状态机、校验 | JUnit5 + Mockito + AssertJ | 全部 mock,无 IO,毫秒级 |
+| 持久层测试(~15%) | MyBatis SQL 正确性 | JUnit5 + Testcontainers(MySQL8) | 真实 MySQL |
+| 集成测试(~10%) | Service→Mapper→DB、事务、分布式锁 | @SpringBootTest + Testcontainers(MySQL+Redis) | 真实 MySQL/Redis |
+| 契约/外部对接(~5%) | Feign 契约、外部系统适配 | WireMock(外部) + Spring Cloud Contract(内部Feign) | 桩 |
+| 关键场景(精选少量) | 端到端核心链路 | @SpringBootTest(webEnvironment) + Testcontainers | 真实基础设施 |
+
+Testcontainers 开启容器复用（`~/.testcontainers.properties` 设 `testcontainers.reuse.enable=true`）以保证速度。
+
+## 3. 三种断言写法（按场景选，目标都是“人能快速审查”）
+
+### 3.1 多字段结果 → 黄金文件（快照）★首选用于结算/对账/报表
+当一个结果对象要断言很多字段时，序列化成可读 JSON 快照，人审查快照文件而非逐行断言。
+```java
+// 结果整体序列化成 golden 下的 json 快照，人审查这个文件即可
+GoldenFile.assertMatch("settle/完整清分结果.json", settlementResult);
+```
+- 快照文件放 `src/test/resources/golden/` 下，纳入 git，作为“预期结果单”。
+- 快照里必须包含所有关键金额/状态字段，且排版可读（美化 JSON）。
+- 首次运行自动生成并失败，提示人工审查；确认预期变更用 `-Dgolden.update=true` 重新生成后再审查。
+
+### 3.2 规则类逻辑 → 参数化数据表 ★用于费率/比例/边界校验
+```java
+@ParameterizedTest
+@CsvSource({
+  // 金额,   费率,   预期手续费, 预期实付
+  "100.00, 0.006,   0.60,    99.40",
+  "  0.00, 0.006,   0.00,     0.00",   // 边界:零元
+})
+void 手续费计算(BigDecimal amt, BigDecimal rate, BigDecimal fee, BigDecimal net) { ... }
+```
+人只审查这张表：每行=一个场景+期望值，横扫即可判断规则与边界是否齐全。
+
+### 3.3 简单单值断言 → AssertJ 链式，测试名用中文清晰描述意图
+```java
+@Test
+void 负数金额清分应抛出校验异常且不落库() {
+  assertThatThrownBy(() -> service.settle(negativeOrder))
+      .isInstanceOf(ServiceException.class);
+  assertThat(mapper.count()).isZero();
+}
+```
+
+## 4. 金融业务专项断言（必须覆盖）
+
+- **金额精度**：`assertThat(fee).isEqualByComparingTo("0.60");`
+- **幂等性**：清分/结算/划转/退款，必须有“重复提交只生效一次”的测试。
+- **金额守恒**：分账后各方金额之和 == 原始金额，一分不差。
+  `assertThat(merchant.add(platform)).isEqualByComparingTo(total);`
+- **事务回滚**：异常场景断言数据未落库/已回滚。
+- **并发/分布式锁**：`@RedisDistributedLock` 关键路径需并发测试验证不重复处理。
+
+## 5. 质量门禁（自验证时必须检查并汇报）
+
+- **JaCoCo 覆盖率**：核心金融包（settle/trans/check/invoice/transfer）行覆盖 ≥ 80%、分支覆盖 ≥ 70%；其他包 ≥ 60%。覆盖率只是下限，不代表质量。
+- **PIT 变异测试**：核心金融包运行 pitest，变异存活率过高说明断言无效，需补强断言（不是补覆盖率）。
+- **静态检查**：Checkstyle + SpotBugs 无新增高危告警。
+
+## 6. 落地优先级（勿追求全量，按“钱相关 × 变更频率”）
+
+1. settle / check / transfer / invoice（钱直接相关）→ 黄金文件 + 幂等 + 守恒
+2. trans（实时交易/退款/黑名单）→ 核心链路场景测试
+3. exchange（外部对接）→ WireMock 契约测试
+4. system 通用 CRUD/RBAC → 参数化快速铺
+5. 兜底：所有新增/修改代码强制带测试
+
+## 7. 测试代码约定
+
+- 测试类放在 `src/test/java`，包路径与被测类一致，命名 `XxxTest`（单元）/`XxxIT`（集成）。
+- 测试方法名用中文描述业务意图（如 `重复清分应幂等不重复计金额`）。
+- 每个测试只验证一个行为；禁止一个测试方法塞多个不相关断言。
+- 测试数据用 Builder/工厂方法构造，避免大段重复的 setup。
+- 不要写无断言或只有 `assertNotNull` 的“空测试”充覆盖率。
