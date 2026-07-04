@@ -1,12 +1,13 @@
 # 前端测试依赖与脚本（对齐现有结构）
 
-## 现状（据仓库检查）
+## 范围与现状
+
+**本次仅覆盖 manage（:8081）与 merchant（:8082）两端**，restarea 暂不做。
 
 | 项目 | 单元测试 | E2E | 说明 |
 |---|---|---|---|
-| etcplus-ui-manage | ✅ Jest + @vue/test-utils | ❌ | 已有 jest.config.js，脚本 `npm run test:unit` |
-| etcplus-ui-merchant | ❌ | ❌ | 只有 lint/dev/build |
-| etcplus-ui-restarea | ❌ | ❌ | 同上 |
+| etcplus-ui-manage（:8081） | ✅ Jest + @vue/test-utils | ❌ | 已有 jest.config.js，脚本 `npm run test:unit` |
+| etcplus-ui-merchant（:8082） | ❌ | ❌ | 只有 lint/dev/build，需补 Jest |
 | **e2e-tests（根目录独立包）** | — | ✅ Playwright ^1.61.1 | 已有 playwright.config.js |
 | Cypress | 未安装 | — | 保持不装，全用 Playwright |
 
@@ -25,8 +26,7 @@ Playwright 已装，无需重复安装。只需：
    └── tests/
        ├── support/apiMock.js        # 打桩 helper
        ├── manage/                    # 运营端用例
-       ├── merchant/                  # 商户端用例
-       └── restarea/                  # 服务区用例
+       └── merchant/                  # 商户端用例
    ```
 3. 确保浏览器已装：`npx playwright install --with-deps chromium`（在 e2e-tests 目录执行）。
 
@@ -38,10 +38,9 @@ Playwright 已装，无需重复安装。只需：
     "test:e2e": "playwright test",
     "test:e2e:manage": "playwright test --project=manage",
     "test:e2e:merchant": "playwright test --project=merchant",
-    "test:e2e:restarea": "playwright test --project=restarea",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:update": "playwright test --update-snapshots",
-    "test:e2e:codegen": "playwright codegen http://localhost:8080",
+    "test:e2e:codegen": "playwright codegen http://localhost:8081",
     "test:e2e:report": "playwright show-report"
   }
 }
@@ -52,9 +51,9 @@ Playwright 已装，无需重复安装。只需：
 ## 2. 组件测试（各门户 Jest）
 
 - **etcplus-ui-manage**：已有 Jest，直接在 `tests/unit/` 补用例，`npm run test:unit`。
-- **etcplus-ui-merchant / restarea**：尚无，补 Jest：
+- **etcplus-ui-merchant**：尚无，补 Jest：
   ```bash
-  # 在对应门户目录执行
+  # 在 etcplus-ui-merchant 目录执行
   vue add unit-jest
   ```
   会带来 `@vue/cli-plugin-unit-jest` + `@vue/test-utils@1`（Vue2 版），脚本 `npm run test:unit`。

@@ -6,8 +6,8 @@ alwaysApply: false
 
 # 前端自动化测试规范（extend_platform）
 
-三套门户：`etcplus-ui-manage`（管理端）/ `etcplus-ui-merchant`（商户端）/ `etcplus-ui-restarea`（服务区）。
-技术栈：Vue 2.6 + Element UI 2.15 + Vue CLI 4。测试底座：**Playwright**。
+覆盖门户（本次范围）：`etcplus-ui-manage`（管理端，:8081）/ `etcplus-ui-merchant`（商户端，:8082）。
+（`etcplus-ui-restarea` 暂不做。）技术栈：Vue 2.6 + Element UI 2.15 + Vue CLI 4。测试底座：**Playwright**。
 目标：AI 生成/维护脚本，机器稳定回归，**人只需快速审查（意图表 + 截图快照）**。
 
 ## 0. 铁律
@@ -82,16 +82,14 @@ E2E 集中在**已存在的根目录 `e2e-tests` 包**（已装 Playwright ^1.61
 
 ```
 e2e-tests/                          # 根目录已存在，所有 E2E 集中于此
-├── playwright.config.js            # 三门户 projects（各自 baseURL）
+├── playwright.config.js            # 两门户 projects（manage :8081 / merchant :8082）
 └── tests/
     ├── support/apiMock.js          # API 打桩 helper
     ├── manage/                      # 运营端 E2E
     ├── merchant/login.spec.js       # 商户端 E2E
-    ├── restarea/                    # 服务区 E2E
     └── __screenshots__/            # 视觉基准图（或 snapshotDir 指定）
 etcplus-ui-manage/tests/unit/        # 组件测试(已有 Jest)
 etcplus-ui-merchant/tests/unit/      # 组件测试(需补 Jest)
-etcplus-ui-restarea/tests/unit/      # 组件测试(需补 Jest)
 ```
 
 - 跑单端：`playwright test --project=merchant`。
