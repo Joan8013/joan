@@ -75,17 +75,27 @@ await expect(page).toHaveScreenshot('merchant/dashboard.png', {
 - 用 Playwright 自动等待，禁止 `waitForTimeout` 写死延时。
 - 每个测试独立：不依赖前一个测试的状态；登录态用 `storageState` 复用或每次打桩。
 
-## 4. 目录结构（前端项目内）
+## 4. 目录结构（对齐现有仓库）
+
+E2E 集中在**已存在的根目录 `e2e-tests` 包**（已装 Playwright ^1.61.1），用 projects 区分三端；
+组件测试放各门户自己的 Jest（manage 已有，merchant/restarea 需 `vue add unit-jest`）。
 
 ```
-etcplus-ui-merchant/            # 每套门户各一份，或共用根 e2e
-├── playwright.config.js
-├── e2e/
-│   ├── support/apiMock.js      # API 打桩 helper
-│   ├── merchant/login.spec.js  # E2E 用例
-│   └── __screenshots__/        # 视觉基准图
-└── tests/unit/                 # VTU + Jest 组件测试(Vue CLI 默认)
+e2e-tests/                          # 根目录已存在，所有 E2E 集中于此
+├── playwright.config.js            # 三门户 projects（各自 baseURL）
+└── tests/
+    ├── support/apiMock.js          # API 打桩 helper
+    ├── manage/                      # 运营端 E2E
+    ├── merchant/login.spec.js       # 商户端 E2E
+    ├── restarea/                    # 服务区 E2E
+    └── __screenshots__/            # 视觉基准图（或 snapshotDir 指定）
+etcplus-ui-manage/tests/unit/        # 组件测试(已有 Jest)
+etcplus-ui-merchant/tests/unit/      # 组件测试(需补 Jest)
+etcplus-ui-restarea/tests/unit/      # 组件测试(需补 Jest)
 ```
+
+- 跑单端：`playwright test --project=merchant`。
+- Cypress 全仓库不使用。
 
 ## 5. 质量门
 
