@@ -67,6 +67,31 @@ Orchestrator 默认全自动推进，仅在这些情况停下问人（记录在 
 - **人只在关键点介入**：默认全自动，遇到无法自动决策才升级。
 - **止步上线清单**：不执行部署，产出可交付运维的 checklist。
 
+## 模型选型建议（按角色混搭）
+
+金融场景下，迭代多的角色用快而省的 **Composer 2.5** 打主力，把关类角色用 **Opus** 兜底：
+
+| 角色 | 推荐模型 |
+|---|---|
+| Orchestrator | Composer 2.5（预算足可用 Opus） |
+| PM（验收标准） | **Opus 4.8** |
+| Planner | Composer 2.5 |
+| Dev（开发） | **Composer 2.5** |
+| Tester（测试） | **Composer 2.5** |
+| Reviewer（审查） | **Opus 4.8** |
+
+- 省钱：可全程 Composer 2.5，但验收标准与审查两步需加强人工把关。
+- 求稳：PM/Reviewer 步骤手动切 Opus。
+- 建议先拿低风险小需求全程 Composer 2.5 跑通再调整。
+
+详见 `.cursor/rules/multi-agent-dev.mdc` 第 8 节。
+
+## 降级方案：单 Agent 简化版
+
+若桌面版子代理调度不理想，可降级为“同一个 Agent 依次扮演各角色”，
+状态机/工件交接/质量门/有界循环全部不变，靠 `.agents/` 文件保持状态。
+详见 `.cursor/rules/multi-agent-dev.mdc` 第 9 节。
+
 ## 后期演进（云端多 Agent 并行）
 
 `plan.md` 里相互独立的任务，后期可用云端 Cloud Agent 各起一个分支并行开发，
