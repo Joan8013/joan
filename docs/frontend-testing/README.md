@@ -3,25 +3,25 @@
 面向三套 Vue 2.6 + Element UI 门户（manage / merchant / restarea）的前端测试体系。
 核心：**AI 生成/维护脚本，机器稳定回归，人只审意图表 + 截图快照。**
 
-## 对齐现有仓库结构
+## 范围与对齐
 
-- E2E 已有根目录独立包 **`e2e-tests`（Playwright ^1.61.1）** → **所有 E2E 集中放这里**，用 projects 区分三端。
-- `etcplus-ui-manage` 已有 **Jest** → 组件测试沿用；`merchant`/`restarea` 无，需 `vue add unit-jest`。
+**本次仅覆盖 manage（:8081）与 merchant（:8082）两端**，restarea 暂不做。
+
+- E2E 已有根目录独立包 **`e2e-tests`（Playwright ^1.61.1）** → **所有 E2E 集中放这里**，用 projects 区分两端。
+- `etcplus-ui-manage` 已有 **Jest** → 组件测试沿用；`merchant` 无，需 `vue add unit-jest`。
 - Cypress 未安装 → 保持不装，全用 Playwright。
 
 目标结构：
 
 ```
 e2e-tests/                             # 根目录已存在，E2E 集中于此
-├── playwright.config.js              # 三门户 projects 配置
+├── playwright.config.js              # 两门户 projects 配置
 └── tests/
     ├── support/apiMock.js            # API 打桩 helper
-    ├── manage/                        # 运营端 E2E
-    ├── merchant/                      # 商户端 E2E
-    └── restarea/                      # 服务区 E2E
+    ├── manage/                        # 运营端 E2E (baseURL :8081)
+    └── merchant/                      # 商户端 E2E (baseURL :8082)
 etcplus-ui-manage/tests/unit/          # 组件测试(已有 Jest)
 etcplus-ui-merchant/tests/unit/        # 组件测试(需补 Jest)
-etcplus-ui-restarea/tests/unit/        # 组件测试(需补 Jest)
 ```
 
 ## 本目录内容
@@ -53,9 +53,9 @@ docs/frontend-testing/
 2. 用 `samples/playwright.config.js` 覆盖/对齐 `e2e-tests/playwright.config.js`，按端口改三端 baseURL。
 3. 建目录 `e2e-tests/tests/{support,manage,merchant,restarea}/`，把 `samples/support/apiMock.js` 放到 `e2e-tests/tests/support/`。
 4. 参考 `samples/merchant/login.spec.js` 放到 `e2e-tests/tests/merchant/`，写第一条 E2E（先让 AI 出“测试意图表”）。
-5. 启动对应门户 dev server，`npm run test:e2e:merchant` 跑。
+5. 启动对应门户 dev server（manage :8081 / merchant :8082），`npm run test:e2e:merchant` 跑。
 6. 首次跑视觉快照会生成基准图，人工审查后 `git add` 入库。
-7. 组件测试：manage 直接补 `tests/unit/`；merchant/restarea 先 `vue add unit-jest`。
+7. 组件测试：manage 直接补 `tests/unit/`；merchant 先 `vue add unit-jest`。
 
 ## 关键约定（详见规范）
 
