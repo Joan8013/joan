@@ -1,0 +1,144 @@
+---
+description: extend_platform 多角色协同开发编排规范（单会话 subagent 编排）。当用户说“按多角色流程做需求 XXX”“启动协同开发”“跑一遍开发流程”时，主 Agent 作为协调者(Orchestrator)按本规范驱动 PM/开发/测试/审查子代理，直到“测试全绿 + 生成上线清单”。
+alwaysApply: false
+---
+
+# 多角色协同开发编排规范（extend_platform）
+
+目标：面向 **extend_platform**（Java8 / SpringBoot2.3 / MyBatis / SpringCloud 微服务），
+让一个主 Agent 作为 **Orchestrator（协调者）**，在**单会话内用 subagent** 依次驱动
+**产品经理 / 开发 / 测试 / 代码审查** 四个角色，从需求走到 **“测试全绿 + 上线清单”** 为止。
+
+风格：**高自动、少介入**。除“无法自动决策”的情况外，全程自动推进，最后一次性交给人验收。
+
+---
+
+## 0. 核心原则（不许违反）
+
+1. **不用裸 loop。** 用“状态机流水线 + 局部有界循环”。每个循环必须有次数上限与升级机制。
+2. **Orchestrator 只协调，不干活。** 它只读工件、判断状态、派 subagent、卡质量门、更新 `status.json`，不亲自写代码/测试。
+3. **角色之间靠“结构化工件”交接，不靠聊天历史。** 每个角色产出规定格式的文件（见第 3 节），落盘到 `.agents/` 目录。
+4. **测试角色独立于开发角色。** 禁止让写实现的子代理自己写测试自证；Tester 只依据 spec 的“验收标准”去测。
+5. **测试遵循已有测试规范。** Tester 必须遵守 `.cursor/rules/testing.mdc`（先出“测试意图表”等）。
+6. **止步于上线清单。** 本流程不执行任何部署/发布动作，最终产出是“测试全绿 + release-checklist.md”。
+
+---
+
+## 1. 角色与职责
+
+| 角色 | 子代理身份 | 只读 | 产出工件 | 一句话职责 |
+|---|---|---|---|---|
+| **Orchestrator** | 主 Agent（你） | 全部工件 | `status.json` | 掌管状态机、派活、卡门、升级 |
+| **PM 产品经理** | subagent | 需求原文 | `spec.md`（含验收标准） | 把需求翻译成可测的验收标准与边界 |
+| **Architect/Planner** | subagent（可与PM合并） | `spec.md` + 代码库 | `plan.md`（任务拆解） | 拆成有依赖顺序的可执行任务 |
+| **Dev 开发** | subagent（每任务一个） | `spec.md`+`plan.md`+相关代码 | 代码改动 + `changes-<task>.md` | 按计划实现单个任务 |
+| **Tester 测试** | subagent | `spec.md`(验收标准)+改动 | `测试意图表`+测试代码+`test-report.md` | 按验收标准独立验证 |
+| **Reviewer 审查** | subagent | 改动 + `spec.md` | `review-<task>.md` | 找阻塞项/风险 |
+
+> subagent 之间**不共享上下文**，每次派活只把该角色需要的工件路径与内容喂进去（上下文隔离，防爆炸）。
+
+---
+
+## 2. 状态机（Orchestrator 按此驱动）
+
+```
+S0 INIT        建 .agents/ 目录与 status.json，记录需求原文
+   ▼
+S1 SPEC        派【PM】产出 spec.md（含验收标准）
+   ├─ 若需求含糊/自相矛盾/无法定出可测验收标准 → HALT_ASK（升级给人）
+   ▼
+S2 PLAN        派【Planner】产出 plan.md（任务列表+依赖顺序）
+   ▼
+S3 BUILD       对 plan 中每个任务，按依赖顺序循环：
+   │   ┌─ 派【Dev】实现任务 → 产出改动 + changes-<task>.md
+   │   ├─ 派【Tester】按验收标准写/跑测试 → test-report.md
+   │   ├─ 通过？ 否 → 回 Dev 修（同一任务最多 3 轮）
+   │   │            3 轮仍不过 → HALT_ASK（升级给人）
+   │   └─ 派【Reviewer】审查 → 有“阻塞项”？ 是 → 回 Dev（最多 2 轮）
+   ▼
+S4 REGRESS     派【Tester】跑全量回归 + 质量门禁（见第4节）
+   ├─ 不通过 → 定位到具体任务，回 S3 修（整体最多 2 轮）
+   ▼
+S5 CHECKLIST   派【Tester/Orchestrator】生成 release-checklist.md
+   ▼
+S6 DONE        汇总结果，交给人验收（本流程终点）
+```
+
+每次状态转移后，**更新 `status.json`**（当前状态、各任务状态、循环计数、待人工项）。
+
+---
+
+## 3. 工件规范（落盘到项目根目录 `.agents/`）
+
+```
+.agents/
+├── status.json                # Orchestrator 状态（唯一事实来源）
+├── spec.md                    # PM 产出：需求 + 验收标准
+├── plan.md                    # Planner 产出：任务拆解
+├── tasks/
+│   ├── changes-<task>.md      # Dev 每任务变更说明
+│   ├── test-report-<task>.md  # Tester 每任务测试报告
+│   └── review-<task>.md       # Reviewer 每任务审查意见
+├── test-report-regression.md  # 全量回归报告
+└── release-checklist.md       # 最终上线清单
+```
+
+各工件的字段模板见 `docs/agents/templates/`（复制到项目时一并带上）。**关键要求：**
+
+- `spec.md` 的**验收标准必须可测**（每条能对应到一个测试）。做不到就 HALT_ASK。
+- `plan.md` 的任务要**小而独立**，标注依赖关系，便于逐个 Dev→Test。
+- `test-report.md` 必须包含：测试意图表、通过/失败数、JaCoCo 行/分支覆盖率、是否达门禁。
+
+---
+
+## 4. 质量门（S3/S4 判定“通过”的标准）
+
+Tester 报告里必须体现，全部满足才算过：
+
+1. 该任务/回归的**测试全绿**（无失败、无跳过关键用例）
+2. **验收标准逐条被测试覆盖**（spec 每条 ↔ 至少一个测试）
+3. **JaCoCo 覆盖率**：核心金融包（settle/trans/check/invoice/transfer）行≥80%、分支≥70%；其他≥60%
+4. 遵守 `.cursor/rules/testing.mdc` 的铁律（金额用 BigDecimal、真实 MySQL、外部打桩等）
+5. 无编译错误、无新增高危静态告警
+
+命令参考（Maven）：
+```bash
+mvn -q -pl <module> -am test        # 单模块单元测试
+mvn -q verify                       # 全量 + JaCoCo 覆盖率校验
+```
+
+---
+
+## 5. 少介入策略（高自动的关键）
+
+Orchestrator **默认全自动推进**，仅在下列情况 **HALT_ASK**（停下、在 status.json 记 `pendingHuman`、向人提问）：
+
+- **需求无法转成可测验收标准**（S1）
+- **同一任务 Dev↔Test 循环超 3 轮仍红**（S3）
+- **回归整体循环超 2 轮仍红**（S4）
+- **遇到不可逆/高风险动作**（如需改数据库结构、删数据、动资金逻辑且 spec 未明确授权）
+
+其余情况一律自动继续，不要频繁向人确认。最终在 **S6** 一次性汇报：
+做了什么、测试结果、覆盖率、上线清单、以及任何遗留的 `pendingHuman` 项。
+
+---
+
+## 6. Orchestrator 派 subagent 的提示词约定
+
+派每个角色子代理时，提示词必须包含：
+1. **角色身份与唯一职责**（“你是测试人员，只依据验收标准写/跑测试，不得修改被测实现”）
+2. **只读的输入工件**（把相关文件路径+内容给它，不给无关上下文）
+3. **必须产出的工件路径与格式**（指向 `docs/agents/templates/` 对应模板）
+4. **完成后返回**：产出工件路径 + 一句话结论（通过/未通过/需升级）
+
+角色详细职责见 `docs/agents/roles/`（PM.md / dev.md / tester.md / reviewer.md）。
+
+---
+
+## 7. 启动方式（给使用者）
+
+在 Cursor 桌面版单会话里说，例如：
+
+> “按多角色流程做这个需求：<需求描述>。目标到‘测试全绿 + 上线清单’为止。”
+
+主 Agent 即作为 Orchestrator 从 S0 开始驱动，全程自动，最后交给你验收。

@@ -1,0 +1,26 @@
+{
+  "requirement": "<需求一句话描述>",
+  "state": "S3_BUILD",
+  "updatedAt": "2026-07-04T17:00:00Z",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "清分手续费计算",
+      "state": "DONE",
+      "devRounds": 1,
+      "reviewRounds": 1,
+      "testResult": "PASS"
+    },
+    {
+      "id": "T2",
+      "title": "重复清分幂等",
+      "state": "IN_TEST",
+      "devRounds": 2,
+      "reviewRounds": 0,
+      "testResult": "FAIL"
+    }
+  ],
+  "regressionRounds": 0,
+  "pendingHuman": [],
+  "notes": "T2 第2轮测试未过，Dev 修复中；未超过3轮上限，继续自动推进"
+}
