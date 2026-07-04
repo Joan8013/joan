@@ -1,0 +1,110 @@
+---
+description: extend_platform 前端自动化测试规范（Vue2.6 + Element UI，Playwright E2E + 视觉回归 + API 打桩）。编写、修改任何前端测试时必须遵守。
+globs: ["etcplus-ui-*/**/*.js", "etcplus-ui-*/**/*.vue", "**/e2e/**", "**/playwright.config.*"]
+alwaysApply: false
+---
+
+# 前端自动化测试规范（extend_platform）
+
+三套门户：`etcplus-ui-manage`（管理端）/ `etcplus-ui-merchant`（商户端）/ `etcplus-ui-restarea`（服务区）。
+技术栈：Vue 2.6 + Element UI 2.15 + Vue CLI 4。测试底座：**Playwright**。
+目标：AI 生成/维护脚本，机器稳定回归，**人只需快速审查（意图表 + 截图快照）**。
+
+## 0. 铁律
+
+1. **回归用确定性脚本，不用 AI 实时点击。** AI 实时驱动浏览器（Playwright MCP）只用于“探索 + 生成用例”，产出后必须转成确定性 Playwright 脚本供重复回归。
+2. **E2E 必须打桩后端。** 微服务不可能全起；一律用 `page.route()` 拦截 API 返回 mock 数据，保证快、稳、可复现。测试只测前端逻辑与交互，不测后端。
+3. **禁止脆弱定位。** 优先 `getByRole` / `getByLabel` / 文本定位；禁止依赖 Element UI 自动生成的 CSS 类名（如 `.el-xxx__yyy`）。异步组件必须显式等待。
+4. **视觉快照需人工审查基准图。** 首次生成的基准截图必须人工确认一次后再纳入 git。
+5. **新增/修改页面或交互，必须同步补/改 E2E 或组件测试。**
+
+## 1. 分层与工具
+
+| 层级 | 测什么 | 工具 |
+|---|---|---|
+| E2E（主力） | 真实页面流程：登录→操作→结果 | Playwright + `page.route()` 打桩 |
+| 视觉回归 | 页面样式/布局是否符合基准 | Playwright `toHaveScreenshot()` |
+| 组件测试（关键组件） | 复杂组件的渲染/交互/事件 | Vue Test Utils v1 + Jest（`@vue/cli-plugin-unit-jest`） |
+
+## 2. 强制工作流（与后端测试一致）
+
+1. **先出「测试意图表」等人审**（场景/操作步骤/期望/类型），批准前不写脚本。
+2. 批准后落地为 Playwright 脚本（E2E）或 VTU 用例（组件）。
+3. 运行并汇报结果（通过/失败、截图 diff）。
+4. 把「需人审的期望」集中呈现：意图表 + 截图快照 + 关键断言。
+
+测试意图表示例：
+
+| 场景 | 操作步骤 | 期望结果 | 类型 |
+|---|---|---|---|
+| 商户登录成功 | 输入正确账号密码→点登录 | 跳转 /merchant/index，显示用户名 | 正常 |
+| 密码错误 | 输入错误密码→点登录 | 提示“用户名或密码错误”，停留登录页 | 异常 |
+
+## 3. Playwright 约定
+
+### 3.1 定位（针对 Element UI）
+- 按钮：`page.getByRole('button', { name: '登 录' })`（注意 Element 按钮文字可能带空格）
+- 输入框：优先 `getByLabel` 或 `getByPlaceholder`；必要时给关键元素加 `data-test` 属性（推荐）
+- 下拉/日期/弹窗：点击后 **显式等待** 弹层出现再操作，如 `await page.getByRole('listbox').waitFor()`
+- 表格：用行文本 + 列语义定位，避免 nth 索引
+
+> 推荐：在前端关键交互元素上加 `data-test="xxx"`，用 `page.getByTestId('xxx')` 定位，最稳。
+
+### 3.2 API 打桩（必须）
+用统一 helper（见 `docs/frontend-testing/samples/support/apiMock.js`）：
+```js
+await mockApi(page, {
+  'POST **/auth/login': { code: 200, data: { token: 'fake' } },
+  'GET  **/merchant/info': { code: 200, data: { name: '测试商户' } },
+});
+```
+- mock 数据尽量贴近真实响应结构（`code`/`data`/`msg`）。
+- 需要测“接口失败”时，返回对应错误码，断言前端提示与降级。
+
+### 3.3 视觉快照
+```js
+await expect(page).toHaveScreenshot('merchant/dashboard.png', {
+  maxDiffPixelRatio: 0.01,           // 容忍极小抗锯齿差异
+  mask: [page.getByTestId('now-time')], // 遮罩时间等动态区域
+});
+```
+- 遮罩掉时间、随机 ID 等动态内容，避免误报。
+- 基准图放 `e2e/__screenshots__/`，人工审查后入库。
+
+### 3.4 稳定性
+- 用 Playwright 自动等待，禁止 `waitForTimeout` 写死延时。
+- 每个测试独立：不依赖前一个测试的状态；登录态用 `storageState` 复用或每次打桩。
+
+## 4. 目录结构（前端项目内）
+
+```
+etcplus-ui-merchant/            # 每套门户各一份，或共用根 e2e
+├── playwright.config.js
+├── e2e/
+│   ├── support/apiMock.js      # API 打桩 helper
+│   ├── merchant/login.spec.js  # E2E 用例
+│   └── __screenshots__/        # 视觉基准图
+└── tests/unit/                 # VTU + Jest 组件测试(Vue CLI 默认)
+```
+
+## 5. 质量门
+
+- 核心链路 E2E 全绿（登录、关键业务操作、关键报表）。
+- 验收标准逐条被 E2E/组件测试覆盖。
+- 视觉快照无非预期 diff。
+- 无 console error（可在 fixture 里监听 `page.on('pageerror')` 并断言）。
+
+## 6. AI 驱动浏览器（Playwright MCP）用法
+
+装 Playwright MCP 到 Cursor 后，可让 AI 实时操作浏览器做**探索性测试与用例生成**：
+> “打开商户端费率配置页，把主要功能点点一遍，找出报错/异常，整理成测试意图表并生成对应 Playwright 脚本。”
+
+产出必须落成 §3 的确定性脚本；实时点击结果本身不作为回归手段。
+
+## 7. 落地优先级
+
+1. 登录 + 权限路由（三端各自的登录）
+2. 各端最核心的业务链路（1~2 条）
+3. 关键报表/列表页的加载与筛选
+4. 视觉回归覆盖主要页面
+5. 复杂交互组件的 VTU 组件测试
