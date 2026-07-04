@@ -1,5 +1,6 @@
 // 商户端登录 E2E 样板（Vue2.6 + Element UI）
-// 复制到 etcplus-ui-merchant/e2e/merchant/login.spec.js，按真实页面/接口调整。
+// 集中式结构：复制到根目录 e2e-tests/tests/merchant/login.spec.js。
+// apiMock helper 放 e2e-tests/tests/support/apiMock.js。按真实页面/接口调整。
 
 const { test, expect } = require('@playwright/test');
 const { mockApi, failOnConsoleError } = require('../support/apiMock');

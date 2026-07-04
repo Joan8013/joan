@@ -1,36 +1,54 @@
-// Playwright 配置模板（Vue2.6 + Element UI）
-// 放到前端门户项目根目录，按需改 baseURL / webServer 命令。
-// 三套门户可各放一份，或用 projects 区分。
+// Playwright 配置模板（集中式：放在根目录 e2e-tests 包，一套管三端）
+// 你的仓库已有根目录 e2e-tests 独立包 + Playwright，本文件用于覆盖/对齐其配置。
+//
+// 三套门户用 projects 区分，各自 baseURL + testDir。
+// 端口按你各门户 dev server 实际配置改。
 
 const { defineConfig, devices } = require('@playwright/test');
 
+// 各门户地址（可用环境变量覆盖）
+const MANAGE_URL = process.env.MANAGE_URL || 'http://localhost:8080';
+const MERCHANT_URL = process.env.MERCHANT_URL || 'http://localhost:8081';
+const RESTAREA_URL = process.env.RESTAREA_URL || 'http://localhost:8082';
+
 module.exports = defineConfig({
-  testDir: './e2e',
-  snapshotDir: './e2e/__screenshots__',
+  testDir: './tests',
+  snapshotDir: './__screenshots__',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: [['html', { open: 'never' }], ['list']],
 
   use: {
-    // 改成你门户 dev server 地址；不同门户不同端口
-    baseURL: process.env.BASE_URL || 'http://localhost:8080',
-    trace: 'on-first-retry',       // 失败重试时录 trace，方便排查
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     locale: 'zh-CN',
   },
 
-  // 让 Playwright 自动拉起前端 dev server（按你项目实际命令改）
-  webServer: {
-    command: 'npm run serve',
-    url: process.env.BASE_URL || 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
-
+  // 按门户分 project：每个 project 只跑自己目录的用例，用自己的 baseURL
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    // 需要多浏览器时再开：
-    // { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    {
+      name: 'manage',
+      testDir: './tests/manage',
+      use: { ...devices['Desktop Chrome'], baseURL: MANAGE_URL },
+    },
+    {
+      name: 'merchant',
+      testDir: './tests/merchant',
+      use: { ...devices['Desktop Chrome'], baseURL: MERCHANT_URL },
+    },
+    {
+      name: 'restarea',
+      testDir: './tests/restarea',
+      use: { ...devices['Desktop Chrome'], baseURL: RESTAREA_URL },
+    },
   ],
+
+  // 可选：让 Playwright 自动拉起三套 dev server（本地调试用；CI 建议改为构建产物静态服务）
+  // 注意：同时起三个 vue-cli-service 较重，本地可按需只留要测的那个。
+  // webServer: [
+  //   { command: 'npm --prefix ../etcplus-ui-manage run serve',   url: MANAGE_URL,   reuseExistingServer: !process.env.CI, timeout: 180000 },
+  //   { command: 'npm --prefix ../etcplus-ui-merchant run serve', url: MERCHANT_URL, reuseExistingServer: !process.env.CI, timeout: 180000 },
+  //   { command: 'npm --prefix ../etcplus-ui-restarea run serve', url: RESTAREA_URL, reuseExistingServer: !process.env.CI, timeout: 180000 },
+  // ],
 });

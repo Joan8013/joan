@@ -3,17 +3,38 @@
 面向三套 Vue 2.6 + Element UI 门户（manage / merchant / restarea）的前端测试体系。
 核心：**AI 生成/维护脚本，机器稳定回归，人只审意图表 + 截图快照。**
 
-## 目录
+## 对齐现有仓库结构
+
+- E2E 已有根目录独立包 **`e2e-tests`（Playwright ^1.61.1）** → **所有 E2E 集中放这里**，用 projects 区分三端。
+- `etcplus-ui-manage` 已有 **Jest** → 组件测试沿用；`merchant`/`restarea` 无，需 `vue add unit-jest`。
+- Cypress 未安装 → 保持不装，全用 Playwright。
+
+目标结构：
+
+```
+e2e-tests/                             # 根目录已存在，E2E 集中于此
+├── playwright.config.js              # 三门户 projects 配置
+└── tests/
+    ├── support/apiMock.js            # API 打桩 helper
+    ├── manage/                        # 运营端 E2E
+    ├── merchant/                      # 商户端 E2E
+    └── restarea/                      # 服务区 E2E
+etcplus-ui-manage/tests/unit/          # 组件测试(已有 Jest)
+etcplus-ui-merchant/tests/unit/        # 组件测试(需补 Jest)
+etcplus-ui-restarea/tests/unit/        # 组件测试(需补 Jest)
+```
+
+## 本目录内容
 
 ```
 .cursor/rules/frontend-testing.mdc     # 前端测试规范（放项目 .cursor/rules/）
 docs/frontend-testing/
 ├── README.md                          # 本文件
 └── samples/
-    ├── playwright.config.js           # Playwright 配置模板
-    ├── deps-and-scripts.md            # 依赖安装 + package.json 脚本 + MCP 说明
-    ├── support/apiMock.js             # API 打桩 helper（E2E 脱离后端）
-    └── merchant/login.spec.js         # 商户端登录 E2E 样板（含视觉快照）
+    ├── playwright.config.js           # 三门户 projects 配置（覆盖 e2e-tests 的配置）
+    ├── deps-and-scripts.md            # 对齐现状的安装/脚本/MCP 说明
+    ├── support/apiMock.js             # API 打桩 helper（放 e2e-tests/tests/support/）
+    └── merchant/login.spec.js         # 商户端登录 E2E 样板（放 e2e-tests/tests/merchant/）
 ```
 
 ## “AI 自动化测试”的三个层次
@@ -26,14 +47,15 @@ docs/frontend-testing/
 
 **原则：L2 探索生成用例 → 转成 L1 确定性脚本做回归。** 不用 AI 每次实时点击跑回归。
 
-## 快速开始
+## 快速开始（对齐现状）
 
-1. 复制 `.cursor/rules/frontend-testing.mdc` 到门户项目根 `.cursor/rules/`。
-2. 按 `samples/deps-and-scripts.md` 安装 Playwright、加 package.json 脚本。
-3. 用 `samples/playwright.config.js` 覆盖配置，改 baseURL 与 `npm run serve` 命令。
-4. 把 `samples/support/apiMock.js` 放到 `e2e/support/`。
-5. 参考 `samples/merchant/login.spec.js` 写第一条 E2E（先让 AI 出“测试意图表”）。
+1. 复制 `.cursor/rules/frontend-testing.mdc` 到仓库根 `.cursor/rules/`。
+2. 用 `samples/playwright.config.js` 覆盖/对齐 `e2e-tests/playwright.config.js`，按端口改三端 baseURL。
+3. 建目录 `e2e-tests/tests/{support,manage,merchant,restarea}/`，把 `samples/support/apiMock.js` 放到 `e2e-tests/tests/support/`。
+4. 参考 `samples/merchant/login.spec.js` 放到 `e2e-tests/tests/merchant/`，写第一条 E2E（先让 AI 出“测试意图表”）。
+5. 启动对应门户 dev server，`npm run test:e2e:merchant` 跑。
 6. 首次跑视觉快照会生成基准图，人工审查后 `git add` 入库。
+7. 组件测试：manage 直接补 `tests/unit/`；merchant/restarea 先 `vue add unit-jest`。
 
 ## 关键约定（详见规范）
 
