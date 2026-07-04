@@ -37,6 +37,10 @@ alwaysApply: false
 
 > subagent 之间**不共享上下文**，每次派活只把该角色需要的工件路径与内容喂进去（上下文隔离，防爆炸）。
 
+**前端任务**：若任务涉及 Vue 前端（etcplus-ui-*），Tester 改用 **Frontend Tester** 角色
+（`docs/agents/roles/frontend-tester.md`），遵循 `.cursor/rules/frontend-testing.mdc`（Playwright E2E +
+API 打桩 + 视觉快照）。后端任务用后端 Tester + `.cursor/rules/testing.mdc`。
+
 ---
 
 ## 2. 状态机（Orchestrator 按此驱动）
