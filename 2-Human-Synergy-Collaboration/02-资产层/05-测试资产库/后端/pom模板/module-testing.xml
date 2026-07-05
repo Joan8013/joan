@@ -6,7 +6,7 @@
   若生产已引 mysql-connector-java，可省略 test scope 那份 MySQL 驱动。
   若模块不做持久层/集成测试，可只保留 spring-boot-starter-test + wiremock-jre8。
 
-  对应样板：docs/testing/samples/
+  对应样板：../样板测试/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

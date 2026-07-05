@@ -6,15 +6,15 @@
 ## 目录
 
 ```
-.cursor/rules/testing.mdc         # 给 Cursor 的测试规范（放项目根目录 .cursor/rules/ 下）
-docs/testing/
+.cursor/rules/testing.mdc         # 给 Cursor 的测试规范（放项目根目录 .cursor/rules/ 下；此文件不随资产库迁移）
+02-资产层/05-测试资产库/后端/
 ├── README.md                     # 本文件
-├── pom-snippets.md               # Maven 片段速查（完整版见 pom/ 目录）
-├── pom/
+├── pom模板/
 │   ├── README.md                 # POM 合并说明
 │   ├── parent-testing.xml        # 父 POM 测试插件 + BOM + Profile（合并进根 pom）
-│   └── module-testing.xml        # 业务模块 test 依赖模板
-└── samples/                      # 样板测试代码（复制进项目对应目录，改成你真实类名）
+│   ├── module-testing.xml        # 业务模块 test 依赖模板
+│   └── pom-snippets.md           # Maven 片段速查（完整版见上面两个 xml）
+└── 样板测试/                      # 样板测试代码（复制进项目对应目录，改成你真实类名）
     ├── GoldenFile.java           # 黄金文件断言工具（零依赖）
     ├── AbstractMySqlIT.java      # 集成测试基类（Testcontainers 真实 MySQL8）
     ├── SettleServiceTest.java    # 单元测试样板（参数化表 + 守恒 + 幂等 + 异常 + 黄金文件）
@@ -29,8 +29,8 @@ docs/testing/
 ## 快速开始
 
 1. **放规范**：把 `.cursor/rules/testing.mdc` 复制到你项目根目录的 `.cursor/rules/` 下。
-2. **加依赖**：按 `docs/testing/pom/README.md` 把 `parent-testing.xml` / `module-testing.xml` 合并进根 pom 与业务模块 pom（片段速查见 `pom-snippets.md`）。
-3. **放工具类**：把 `samples/GoldenFile.java` 复制到 `src/test/java/com/etcplus/test/`。
+2. **加依赖**：按 `pom模板/README.md` 把 `parent-testing.xml` / `module-testing.xml` 合并进根 pom 与业务模块 pom（片段速查见 `pom模板/pom-snippets.md`）。
+3. **放工具类**：把 `样板测试/GoldenFile.java` 复制到 `src/test/java/com/etcplus/test/`。
 4. **写第一批测试**：在 Cursor 里说「按测试规范给 `SettleService` 补测试」，
    Agent 会先给你「测试意图表」→ 你批准 → 它实现 → 你审查黄金文件/数据表。
 5. **首次跑测试**：`mvn test`，黄金文件会自动生成并让测试失败，
