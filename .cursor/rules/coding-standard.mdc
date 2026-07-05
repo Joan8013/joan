@@ -1,0 +1,49 @@
+---
+description: extend_platform 后端编码约定（Java8/SpringBoot2.3/MyBatis/SpringCloud，RuoYi 风格）。编写或修改任何 Java 代码时必须遵守。完整版见 HSC 02-资产层/07-编码约定/编码约定.md。
+globs: ["**/*.java", "**/mapper/**/*.xml"]
+alwaysApply: false
+---
+
+# extend_platform 编码约定（要点）
+
+写代码前先读 2 个同域同类实现，保持一致；复用 common-*，不重复造轮子。
+完整约定与代码为证见 `02-资产层/07-编码约定/编码约定.md`。
+
+## 分层
+- 运营 Controller：`system.manage.<域>.controller`；商户：`system.split.merchant.<域>.controller`（类名 `Mh*`，路径 `/mhApi/*`）。
+- 业务在 `system.business.<域>`（domain/mapper/service/impl）；三方走 Feign(`api-exchange`) → `exchange`。
+- Controller 不写业务逻辑与 SQL。
+
+## 响应
+- Controller 继承 `BaseController`；分页 `startPage()`+`getDataTable()` 返回 `TableDataInfo`。
+- 单对象/操作用 `AjaxResult.success/error`、`toAjax(rows)`；导出用 `void`+`HttpServletResponse`+`ExcelUtil`。
+- Feign 返回 `R<T>`，不用 `AjaxResult`。
+
+## 异常
+- 业务错误抛 `BaseException("中文提示")`（settle 域用 `CustomException`，随域一致）；交全局处理器。
+- 写操作加 `@Transactional(rollbackFor = Exception.class)`。禁止空 catch / 吞异常。
+
+## 金额（按域一致，禁混用）
+- 对账域用 Long(分)；发票域用 BigDecimal(元, scale2)；结算域以 BigDecimal 为主。
+- 金额一律 BigDecimal 计算，用 `compareTo`/`isEqualByComparingTo`；**禁 double/float，禁 equals 比较 BigDecimal**。
+- 分↔元转换集中并标注单位。
+
+## MyBatis
+- resultMap id `{Entity}Result`；方法名 `select/insert/update/delete{Entity}`；`<where>`+`<if test="x!=null and x!=''">`。
+- 插入 `<trim>`+`useGeneratedKeys`。参数用 `#{}`；`${}` 仅受控排序且过 `SqlUtil`。
+- **列表禁 SELECT \*、禁返回 request_payload 等大字段**；商户查询用 `merchant_id=#{}` 精确匹配。
+
+## 权限与商户隔离
+- 运营 `@PreAuthorize`，商户 `@MhPreAuthorize`；**新接口必须启用权限注解，不得注释掉**。
+- 商户端 `merchantId` 一律从 token 取（`MhTokenService`）覆盖入参，不信任前端；Service 做所有权校验。
+
+## 幂等
+- 资金操作（清分/结算/开票/退款）必须幂等：clientRequestId + DB 唯一键 + 行锁/状态 CAS；`DuplicateKeyException` 兜底。
+
+## 日志与安全红线（一票否决）
+- 不打印密码/密钥/证书密码/token/完整报文；敏感字段脱敏。
+- 不硬编码敏感信息（环境变量/配置中心）；不拼接 SQL；不绕过商户权限；外部真实接口测试须显式开关。
+
+## 纪律
+- 遵循 TDD（先测后码）与完成前验证，详见 `06-Superpowers技能方法/08-编码实现流程.md`。
+- 不得沿袭 `编码约定.md` §12 的已知技术债。
