@@ -19,7 +19,7 @@
 启动新需求：REQ-XXX - 需求名称。
 
 需求工作台路径：
-E:\\CodexSpace\ETC-AI-ReqFlow-Structured\03-需求工作台\REQ-XXX - 需求名称
+<你的本地路径>\Human-Synergy-Collaboration\03-需求工作台\REQ-XXX - 需求名称
 
 请先读取根目录 README.md、02-资产层/README.md、02-资产层/06-Superpowers技能方法/00-技能选择总入口.md、当前需求 00-原始材料 和 STATUS.md。
 第一阶段只输出 01-需求澄清/需求澄清.md，确认冻结台账作为其中一个小节。

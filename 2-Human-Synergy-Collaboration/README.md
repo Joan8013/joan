@@ -4,7 +4,7 @@ Human-Synergy Collaboration
 
 本文是 HSC（Human-Synergy Collaboration）人机协同开发框架的唯一入口。
 
-当前目录名仍保留为 `ETC-AI-ReqFlow-Structured`，作为历史路径和现有需求工作台的兼容目录名；对外名称统一使用 HSC。
+本框架名称为 **Human-Synergy-Collaboration（HSC）**；目录以 `Human-Synergy-Collaboration` 命名（若带前缀 `2-` 仅表示同级排序，不属于名称）。对外统一简称 HSC。
 
 一句话原则：
 
@@ -63,7 +63,7 @@ REQ-XXX - 需求名称
 启动新需求：REQ-XXX - 需求名称。
 
 需求工作台路径：
-E:\\CodexSpace\ETC-AI-ReqFlow-Structured\03-需求工作台\REQ-XXX - 需求名称
+<你的本地路径>\Human-Synergy-Collaboration\03-需求工作台\REQ-XXX - 需求名称
 
 请按结构化流程执行：
 1. 先读取根目录 README.md。
