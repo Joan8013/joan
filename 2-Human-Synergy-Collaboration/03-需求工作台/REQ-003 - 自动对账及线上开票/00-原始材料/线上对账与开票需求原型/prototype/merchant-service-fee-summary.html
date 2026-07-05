@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>商户平台 - 服务费汇总</title>
+  <link rel="stylesheet" href="assets/prototype.css">
+  <script src="assets/prototype.js"></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">商户平台</div>
+    <div class="menu-title">交易中心 / 结算管理</div>
+    <a class="menu-item" href="merchant-settlement-query.html">结算单查询（试行）</a>
+    <a class="menu-item active" href="merchant-service-fee-summary.html">服务费汇总</a>
+    <a class="menu-item" href="merchant-invoice.html">发票</a>
+  </aside>
+  <main class="main">
+    <div class="topbar"><strong>服务费汇总</strong><span>商户侧申请开票入口</span></div>
+    <div class="page">
+      <div class="card">
+        <div class="card-hd">查询条件</div>
+        <div class="card-bd">
+          <div class="form-grid">
+            <div class="field"><label>服务费汇总编号</label><input class="input" placeholder="请输入"></div>
+            <div class="field"><label>状态</label><select class="select"><option>全部</option><option>待开票</option><option>待审核</option><option>待财务初审</option><option>待财务复审</option><option>开票中</option><option>已开票</option><option>开票失败</option><option>驳回待修改</option></select></div>
+            <div class="field"><label>服务费汇总周期</label><input class="input" value="2026-07"></div>
+          </div>
+          <div class="toolbar"><button class="btn primary">搜索</button><button class="btn">重置</button><button class="btn warning">导出</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">服务费汇总列表</div>
+        <div class="card-bd">
+          <table>
+            <thead>
+              <tr><th>操作</th><th>编号</th><th>服务费汇总周期</th><th>服务费汇总方式</th><th>结算单数</th><th>正常金额</th><th>助缴金额</th><th>服务费合计</th><th>状态</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><button class="btn text" onclick="openDialog('detailDialog')">详情</button><button class="btn text" onclick="openDialog('auditHistoryDialog')">审核记录</button><button class="btn text" onclick="openDialog('invoiceRecordDialog')">开票记录</button><button class="btn text" onclick="openDialog('applyDialog')">申请开票</button></td>
+                <td>SF2026070001</td><td>2026-07</td><td>按平台交易日期</td><td>28</td><td class="amount">116,200.00</td><td class="amount">32,600.00</td><td class="amount">4,464.00</td><td><span class="tag orange">待开票</span></td>
+              </tr>
+              <tr>
+                <td><button class="btn text" onclick="openDialog('detailDialog')">详情</button><button class="btn text" onclick="openDialog('auditHistoryDialog')">审核记录</button><button class="btn text" onclick="openDialog('invoiceRecordDialog')">开票记录</button><button class="btn text" onclick="openDialog('applyDialog')">申请开票</button></td>
+                <td>SF2026080001</td><td>2026-08</td><td>按平台交易日期</td><td>31</td><td class="amount">98,800.00</td><td class="amount">0.00</td><td class="amount">2,964.00</td><td><span class="tag red">驳回待修改</span></td>
+              </tr>
+              <tr>
+                <td><button class="btn text" onclick="openDialog('detailDialog')">详情</button><button class="btn text" onclick="openDialog('auditHistoryDialog')">审核记录</button><button class="btn text" onclick="openDialog('invoiceRecordDialog')">开票记录</button><button class="btn text" disabled>申请开票</button></td>
+                <td>SF2026090001</td><td>2026-09</td><td>按平台交易日期</td><td>35</td><td class="amount">134,500.00</td><td class="amount">18,400.00</td><td class="amount">4,587.00</td><td><span class="tag">待财务初审</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination"><span>共 18 条</span><button class="page-btn">‹</button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">›</button><span>10 条/页</span></div>
+          <div class="hint">驳回后不回到“结算单查询（试行）”重新生成；商户在本页面修改发票信息后重新提交审核。</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="dialog-mask" id="applyDialog">
+  <div class="dialog">
+    <div class="dialog-hd">申请开票 <button class="close" onclick="closeDialog('applyDialog')">×</button></div>
+    <div class="dialog-bd">
+      <div class="stats stats-5">
+        <div class="stat">已选择结算单数量<div class="num">28</div></div>
+        <div class="stat">可开票金额（元）<div class="num">148,800.00</div></div>
+        <div class="stat">服务费汇总方式<div class="num">平台交易日期</div></div>
+        <div class="stat">服务费汇总周期<div class="num">2026-07</div></div>
+        <div class="stat">单月开票数量<div class="num">2</div></div>
+      </div>
+      <div class="hint">正常业务最多 2 张，助缴业务最多 2 张。价税合计总和必须等于可开票金额。</div>
+      <div class="toolbar"><button class="btn primary" onclick="toast('已添加发票信息')">添加发票</button></div>
+      <table>
+        <thead><tr><th>业务性质</th><th>发票抬头</th><th>发票类型</th><th>纳税人识别号</th><th>价税合计</th><th>不含税金额</th><th>税额</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td><select class="select"><option>正常</option><option>助缴</option></select></td><td><select class="select"><option>杭州示例业主商户有限公司</option><option>杭州示例业主商户分公司</option></select></td><td>数电普票</td><td><input class="input" value="91330100MAEXAMPLE"></td><td><input class="input amount" value="116200.00"></td><td class="amount">109622.64</td><td class="amount">6577.36</td><td><button class="btn text" onclick="toast('删除当前发票行')">删除</button></td></tr>
+          <tr><td><select class="select"><option>助缴</option><option>正常</option></select></td><td><select class="select"><option>杭州示例业主商户有限公司</option><option>杭州示例业主商户分公司</option></select></td><td>数电专票</td><td><input class="input" value="91330100MAEXAMPLE"></td><td><input class="input amount" value="32600.00"></td><td class="amount">30754.72</td><td class="amount">1845.28</td><td><button class="btn text" onclick="toast('删除当前发票行')">删除</button></td></tr>
+        </tbody>
+      </table>
+      <div class="hint">提交后状态变为“待审核”，正式进入运营审核流程。</div>
+    </div>
+    <div class="dialog-ft"><button class="btn" onclick="closeDialog('applyDialog')">取消</button><button class="btn primary" onclick="toast('已提交审核，进入运营审核')">提交审核</button></div>
+  </div>
+</div>
+
+<div class="dialog-mask" id="detailDialog">
+  <div class="dialog">
+    <div class="dialog-hd">服务费汇总详情 <button class="close" onclick="closeDialog('detailDialog')">×</button></div>
+    <div class="dialog-bd">
+      <div class="stats">
+        <div class="stat">服务费汇总周期<div class="num">2026-07</div></div>
+        <div class="stat">结算单数量<div class="num">28</div></div>
+        <div class="stat">结算总金额（元）<div class="num">148,800.00</div></div>
+        <div class="stat">服务费金额（元）<div class="num">4,464.00</div></div>
+      </div>
+      <table>
+        <thead><tr><th>商户号</th><th>商户名称</th><th>商户类型</th><th>门店编号</th><th>门店名称</th><th>业务性质</th><th>结算日期</th><th>结算单号</th><th>结算笔数</th><th>结算总金额（元）</th><th>付款状态</th><th>付款时间</th><th>平台交易日期</th><th>服务费（元）</th></tr></thead>
+        <tbody>
+          <tr><td>M10020001</td><td>杭州示例业主商户</td><td>业主</td><td>S01001</td><td>西湖银泰停车场</td><td>正常</td><td>2026-07-02</td><td>SD202607010001</td><td>146</td><td class="amount">12,860.00</td><td><span class="tag green">成功</span></td><td>2026-07-05 10:20:11</td><td>2026-07-01</td><td class="amount">385.80</td></tr>
+          <tr><td>M10020001</td><td>杭州示例业主商户</td><td>业主</td><td>S01002</td><td>西溪园区停车场</td><td>助缴</td><td>2026-07-03</td><td>SD202607020018</td><td>88</td><td class="amount">8,600.00</td><td><span class="tag green">成功</span></td><td>2026-07-06 14:08:32</td><td>2026-07-02</td><td class="amount">258.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="dialog-ft"><button class="btn primary" onclick="closeDialog('detailDialog')">关闭</button></div>
+  </div>
+</div>
+
+<div class="dialog-mask" id="auditHistoryDialog">
+  <div class="dialog">
+    <div class="dialog-hd">审核记录 <button class="close" onclick="closeDialog('auditHistoryDialog')">×</button></div>
+    <div class="dialog-bd">
+      <div class="audit-flow">
+        <div class="audit-step done">
+          <div class="audit-dot">✓</div>
+          <div class="audit-main">
+            <div class="audit-title"><span class="step-no">第1步</span><strong>生成服务费汇总</strong><span class="tag green">成功</span></div>
+            <div class="audit-card"><span class="tag">商户</span> 操作人：user20260609&nbsp;&nbsp;时间：2026-07-18 16:22:10<br>状态流转：- -> 待开票<br>处理结果：生成服务费汇总</div>
+          </div>
+        </div>
+        <div class="audit-step done">
+          <div class="audit-dot">✓</div>
+          <div class="audit-main">
+            <div class="audit-title"><span class="step-no">第2步</span><strong>提交审核</strong><span class="tag green">成功</span></div>
+            <div class="audit-card"><span class="tag">商户</span> 操作人：user20260609&nbsp;&nbsp;时间：2026-07-20 09:30:00<br>状态流转：待开票 -> 待审核<br>处理结果：提交开票申请</div>
+          </div>
+        </div>
+        <div class="audit-step">
+          <div class="audit-dot">3</div>
+          <div class="audit-main">
+            <div class="audit-title"><span class="step-no">第3步</span><strong>运营审核</strong><span class="tag orange">待处理</span></div>
+            <div class="audit-card">当前节点待运营人员处理。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-ft"><button class="btn primary" onclick="closeDialog('auditHistoryDialog')">关闭</button></div>
+  </div>
+</div>
+
+<div class="dialog-mask" id="invoiceRecordDialog">
+  <div class="dialog">
+    <div class="dialog-hd">开票记录 <button class="close" onclick="closeDialog('invoiceRecordDialog')">×</button></div>
+    <div class="dialog-bd">
+      <table>
+        <thead><tr><th>提交时间</th><th>业务性质</th><th>发票类型</th><th>发票抬头</th><th>纳税人识别号</th><th>价税合计（元）</th><th>不含税金额（元）</th><th>税额（元）</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td>2026-07-20 09:30</td><td>正常</td><td>数电普票</td><td>杭州示例业主商户有限公司</td><td>91330100MAEXAMPLE</td><td class="amount">116,200.00</td><td class="amount">109,622.64</td><td class="amount">6,577.36</td><td><span class="tag orange">待审核</span></td></tr>
+          <tr><td>2026-07-20 09:30</td><td>助缴</td><td>数电专票</td><td>杭州示例业主商户有限公司</td><td>91330100MAEXAMPLE</td><td class="amount">32,600.00</td><td class="amount">30,754.72</td><td class="amount">1,845.28</td><td><span class="tag orange">待审核</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="dialog-ft"><button class="btn primary" onclick="closeDialog('invoiceRecordDialog')">关闭</button></div>
+  </div>
+</div>
+</body>
+</html>
