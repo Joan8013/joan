@@ -125,6 +125,7 @@
 | TODO-007 | 前后端重试规则对齐 | ~~P2~~ **✅** | 产品口径 TC-008：前端仅 `invoice_status=3`；后端 1/3 为 API 容错；Jest `invoiceManageActions.spec.js` |
 | TODO-008 | Playwright 全链路 E2E | ~~P2~~ **✅** | `e2e-tests/tests/recon-invoice-reject-reapply.spec.js` |
 | TODO-009 | 部署 `uk_fpqqlsh` + 开票 Job | P0 **脚本 ✅** | `sql/req003_invoice_production_deploy.sql`；**目标环境待执行** |
+| IMP-003 | PIT 变异测试实跑 | P1 **已跑** | 得分 **76%**（阈值 70% ✅）；见 `06-测试与验收/测试可信度报告.md` |
 
 ---
 

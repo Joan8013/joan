@@ -17,7 +17,8 @@
 | --- | --- |
 | 后端 unit + IT | `.\scripts\run-invoice-tests-jdk8.ps1 -Mode verify` |
 | 前端 Jest | `.\scripts\run-frontend-recon-tests.ps1 -Target all` |
-| Playwright E2E | `cd e2e-tests; $env:E2E_INTEGRATION='true'; npm test`（见 `recon-invoice-reject-reapply.spec.js`） |
+| Playwright E2E | `cd e2e-tests; $env:E2E_INTEGRATION='true'; npm test` |
+| PIT 变异（IMP-003） | 见 `06-测试与验收/测试可信度报告.md` §3 |
 | 生产部署 TODO-009 | 工作台 `05-开发与联调/req003-生产部署清单-2026-07-05.md` |
 
 详细索引：`extend_platform/docs/req-003/README.md`
