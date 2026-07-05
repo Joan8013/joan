@@ -37,8 +37,10 @@ alwaysApply: false
 - 运营 `@PreAuthorize`，商户 `@MhPreAuthorize`；**新接口必须启用权限注解，不得注释掉**。
 - 商户端 `merchantId` 一律从 token 取（`MhTokenService`）覆盖入参，不信任前端；Service 做所有权校验。
 
-## 幂等
-- 资金操作（清分/结算/开票/退款）必须幂等：clientRequestId + DB 唯一键 + 行锁/状态 CAS；`DuplicateKeyException` 兜底。
+## 幂等（先评估，别默认）
+- **不要给所有接口默认加幂等**（有性能开销）。写"创建持久化记录/触发下游/资金"的接口时，**主动提醒是否需要服务端技术幂等兜底，由架构师判断**，结论记入方案决策项。
+- 需要的判定：请求可能被重试/并发/直连 且 重复会造成业务后果（重复工单/扣款/推送）→ 需要；纯查询、天然幂等（状态 CAS）→ 不需要。
+- 确认需要后：用 clientRequestId/交易流水号 + DB 唯一键 + 行锁/状态 CAS + `DuplicateKeyException` 兜底（复用开票申请模式）。
 
 ## 日志与安全红线（一票否决）
 - 不打印密码/密钥/证书密码/token/完整报文；敏感字段脱敏。
