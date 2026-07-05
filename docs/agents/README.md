@@ -28,8 +28,8 @@ docs/agents/
 
 ## 依赖
 
-本编排的测试环节复用测试规范 `.cursor/rules/testing.mdc` 与测试脚手架
-（见 `docs/testing/`）。两套一起放进项目效果最佳。
+本编排的测试环节复用测试规范 `.cursor/rules/testing.mdc` 与测试资产库
+（见 `2-Human-Synergy-Collaboration/02-资产层/05-测试资产库/`）。两套一起放进项目效果最佳。
 
 ## 使用步骤
 

@@ -51,7 +51,7 @@ alwaysApply: false
 > 推荐：在前端关键交互元素上加 `data-test="xxx"`，用 `page.getByTestId('xxx')` 定位，最稳。
 
 ### 3.2 API 打桩（必须）
-用统一 helper（见 `docs/frontend-testing/samples/support/apiMock.js`）：
+用统一 helper（见 `2-Human-Synergy-Collaboration/02-资产层/05-测试资产库/前端/samples/support/apiMock.js`）：
 ```js
 await mockApi(page, {
   'POST **/auth/login': { code: 200, data: { token: 'fake' } },

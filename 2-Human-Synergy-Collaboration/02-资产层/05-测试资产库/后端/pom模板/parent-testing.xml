@@ -9,7 +9,7 @@
   - §4 build plugins        → 合并进现有 <build><plugins>
   - §5 profiles             → 合并进现有 <profiles>（可选）
 
-  对应文档：docs/testing/README.md
+  对应文档：../README.md
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

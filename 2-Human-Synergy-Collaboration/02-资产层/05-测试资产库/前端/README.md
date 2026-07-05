@@ -27,11 +27,11 @@ etcplus-ui-merchant/tests/unit/        # 组件测试(需补 Jest)
 ## 本目录内容
 
 ```
-.cursor/rules/frontend-testing.mdc     # 前端测试规范（放项目 .cursor/rules/）
-docs/frontend-testing/
+.cursor/rules/frontend-testing.mdc     # 前端测试规范（放项目 .cursor/rules/；此文件不随资产库迁移）
+02-资产层/05-测试资产库/前端/
 ├── README.md                          # 本文件
 └── samples/
-    ├── playwright.config.js           # 三门户 projects 配置（覆盖 e2e-tests 的配置）
+    ├── playwright.config.js           # 两门户(manage/merchant) projects 配置（覆盖 e2e-tests 的配置）
     ├── deps-and-scripts.md            # 对齐现状的安装/脚本/MCP 说明
     ├── support/apiMock.js             # API 打桩 helper（放 e2e-tests/tests/support/）
     └── merchant/login.spec.js         # 商户端登录 E2E 样板（放 e2e-tests/tests/merchant/）
