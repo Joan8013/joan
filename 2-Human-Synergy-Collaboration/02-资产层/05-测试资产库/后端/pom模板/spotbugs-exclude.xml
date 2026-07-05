@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs 排除过滤器：过滤误报与低价值告警，聚焦真缺陷与安全问题。
+  搭配 find-sec-bugs 插件（SQL 注入、硬编码密钥、弱加密等），对齐编码约定安全红线。
+-->
+<FindBugsFilter>
+    <!-- 测试代码不扫 -->
+    <Match>
+        <Source name="~.*[\\/]src[\\/]test[\\/].*"/>
+    </Match>
+
+    <!-- MyBatis/实体常见误报：可序列化、EI_EXPOSE 之类对 DO/VO 意义不大 -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,SE_NO_SERIALVERSIONID"/>
+    </Match>
+
+    <!-- 保留高价值/安全类告警（不排除）：
+         SQL_INJECTION_*, HARD_CODE_PASSWORD, PATH_TRAVERSAL_*,
+         NP_NULL_ON_SOME_PATH, DM_DEFAULT_ENCODING 等由插件默认报告 -->
+</FindBugsFilter>
