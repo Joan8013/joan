@@ -46,7 +46,7 @@ demo
 启动新需求：REQ-XXX - XXX功能。
 
 需求工作台路径：
-E:\\CodexSpace\ETC-AI-ReqFlow-Structured\03-需求工作台\REQ-XXX - XXX功能
+<你的本地路径>\Human-Synergy-Collaboration\03-需求工作台\REQ-XXX - XXX功能
 
 请按结构化流程执行：
 1. 先读取根目录 README.md。
