@@ -1,0 +1,34 @@
+﻿<?php include 'MyAES.php';?>
+
+<?php
+$strTest = "中文啊LyoqIAoJICog5Yqg5a+GIAoJICogIAoJICogQHBhcmFtIGNvbnRlbnQg6ZyA6KaB5Yqg5a+G55qE5YaF5a65IAoJICogQHBhcmFtIHBhc3N3b3JkICDliqDlr4blr4bnoIEgCgkgKiBAcmV0dXJuIAoJICovICAKCXB1YmxpYyBzdGF0aWMgYnl0ZVtdIGVuY3J5cHQoU3RyaW5nIGNvbnRlbnQsIFN0cmluZyBwYXNzd29yZCkgeyAgCgkgICAgICAgIHRyeSB7ICAgICAgICAgICAgIAoJICAgICAgICAgICAgICAgIEtleUdlbmVyYXRvciBrZ2VuID0gS2V5R2VuZXJhdG9yLmdldEluc3RhbmNlKCJBRVMiKTsgIAoJICAgICAgICAgICAgICAgIGtnZW4uaW5pdCgxMjgsIG5ldyBTZWN1cmVSYW5kb20ocGFzc3dvcmQuZ2V0Qnl0ZXMoKSkpOyAgCgkgICAgICAgICAgICAgICAgU2VjcmV0S2V5IHNlY3JldEtleSA9IGtnZW4uZ2VuZXJhdGVLZXkoKTsgIAoJICAgICAgICAgICAgICAgIGJ5dGVbXSBlbkNvZGVGb3JtYXQgPSBzZWNyZXRLZXkuZ2V0RW5jb2RlZCgpOyAgCgkgICAgICAgICAgICAgICAgU2VjcmV0S2V5U3BlYyBrZXkgPSBuZXcgU2VjcmV0S2V5U3BlYyhlbkNvZGVGb3JtYXQsICJBRVMiKTsgIAoJICAgICAgICAgICAgICAgIENpcGhlciBjaXBoZXIgPSBDaXBoZXIuZ2V0SW5zdGFuY2UoIkFFUyIpOy8vIOWIm+W7uuWvhueggeWZqCAgCgkgICAgICAgICAgICAgICAgYnl0ZVtdIGJ5dGVDb250ZW50ID0gY29udGVudC5nZXRCeXRlcygidXRmLTgiKTsgIAoJICAgICAgICAgICAgICAgIGNpcGhlci5pbml0KENpcGhlci5FTkNSWVBUX01PREUsIGtleSk7Ly8g5Yid5aeL5YyWICAKCSAgICAgICAgICAgICAgICBieXRlW10gcmVzdWx0ID0gY2lwaGVyLmRvRmluYWwoYnl0ZUNvbnRlbnQpOyAgCgkgICAgICAgICAgICAgICAgcmV0dXJuIHJlc3VsdDsgLy8g5Yqg5a+GICAKCSAgICAgICAgfSAgY2F0Y2ggKEV4Y2VwdGlvbiBlKSB7ICAKCSAgICAgICAgICAgICAgICBlLnByaW50U3RhY2tUcmFjZSgpOyAgCgkgICAgICAgIH0gIAoJICAgICAgICByZXR1cm4gbnVsbDsgIAoJfSAgCgkKCS8qKuino+WvhiAKCSAqIEBwYXJhbSBjb250ZW50ICDlvoXop6Plr4blhoXlrrkgCgkgKiBAcGFyYW0gcGFzc3dvcmQg6Kej5a+G5a+G6ZKlIAoJICogQHJldHVybiAKCSAqLyAgCglwdWJsaWMgc3RhdGljIGJ5dGVbXSBkZWNyeXB0KGJ5dGVbXSBjb250ZW50LCBTdHJpbmcgcGFzc3dvcmQpIHsgIAoJICAgICAgICB0cnkgeyAgCgkgICAgICAgICAgICAgICAgIEtleUdlbmVyYXRvciBrZ2VuID0gS2V5R2VuZXJhdG9yLmdldEluc3RhbmNlKCJBRVMiKTsgIAoJICAgICAgICAgICAgICAgICBrZ2VuLmluaXQoMTI4LCBuZXcgU2VjdXJlUmFuZG9tKHBhc3N3b3JkLmdldEJ5dGVzKCkpKTsgIAoJICAgICAgICAgICAgICAgICBTZWNyZXRLZXkgc2VjcmV0S2V5ID0ga2dlbi5nZW5lcmF0ZUtleSgpOyAgCgkgICAgICAgICAgICAgICAgIGJ5dGVbXSBlbkNvZGVGb3JtYXQgPSBzZWNyZXRLZXkuZ2V0RW5jb2RlZCgpOyAgCgkgICAgICAgICAgICAgICAgIFNlY3JldEtleVNwZWMga2V5ID0gbmV3IFNlY3JldEtleVNwZWMoZW5Db2RlRm9ybWF0LCAiQUVTIik7ICAgICAgICAgICAgICAKCSAgICAgICAgICAgICAgICAgQ2lwaGVyIGNpcGhlciA9IENpcGhlci5nZXRJbnN0YW5jZSgiQUVTIik7Ly8g5Yib5bu65a+G56CB5ZmoICAKCSAgICAgICAgICAgICAgICBjaXBoZXIuaW5pdChDaXBoZXIuREVDUllQVF9NT0RFLCBrZXkpOy8vIOWIneWni+WMliAgCgkgICAgICAgICAgICAgICAgYnl0ZVtdIHJlc3VsdCA9IGNpcGhlci5kb0ZpbmFsKGNvbnRlbnQpOyAgCgkgICAgICAgICAgICAgICAgcmV0dXJuIHJlc3VsdDsgLy8g5Yqg5a+GICAKCSAgICAgICAgfSBjYXRjaCAoRXhjZXB0aW9uIGUpIHsgIAoJICAgICAgICAgICAgICAgIGUucHJpbnRTdGFja1RyYWNlKCk7ICAKCSAgICAgICAgfSAgCgkgICAgICAgIHJldHVybiBudWxsOyAgCgl9IA==";
+$strPassword = "1234567890123456";
+$strPassword2 = "abcdefghijklmnop";
+$strHash = md5($strTest);
+echo "Hash=" . $strHash . "(" . (strlen($strTest)) . ") <br />";
+
+$myAES = new MyAES();
+$strPwd = "";
+
+for ($x=0; $x<10; $x++) {
+	if ($x % 2 == 0) {
+		$strPwd = $strPassword;
+	} else {
+		$strPwd = $strPassword2;
+	}
+	
+	echo "<br />****************PHP 第" . ($x+1) . "次测试*********************** <br />";
+	
+	$t1 = microtime(true); 
+	$str1=$myAES->encrypt($strHash, $strPwd);
+	echo "密文：" . $str1 . "<br />";
+	$t2 = microtime(true);
+	echo "加密=" . (($t2-$t1)*1000) . "毫秒<br />";
+	
+	$str2=$myAES->decrypt($str1, $strPwd);
+	echo "原文：" . $str2 . "<br />";
+	$t3 = microtime(true);
+	echo "解密=" . (($t3-$t2)*1000) . '毫秒<br />';
+}
+
+?>

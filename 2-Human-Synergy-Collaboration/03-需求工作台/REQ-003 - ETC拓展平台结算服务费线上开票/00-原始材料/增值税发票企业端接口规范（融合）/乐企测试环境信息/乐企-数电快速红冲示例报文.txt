@@ -1,0 +1,18 @@
+{
+	"REQUEST_COMMON_FPKSHC": {
+		"SBLX": "7",
+		"SBBH": "",
+		"FPQQLSH": "ce11irrss22",
+		"XSF_NSRSBH": "914403003591MAU601",
+		"XSF_MC": "广东测试有限公司深圳分公司",
+		"YFP_DM": "",
+		"YFP_HM": "24952000000001160052",
+		"CHYYDM": "04",
+		"SSLKJLY": "",
+		"HZQRDUUID": "",
+		"XXBBH": "",
+		"KPR": "开票人",
+		"CALLBACK_URL": "",
+		"LSH": ""
+	}
+}

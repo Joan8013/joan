@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  extend_platform 测试体系 — 业务模块 test 依赖参考
+
+  用法：将 <dependencies> 内各块合并进目标模块 pom（如 etcplus-modules-system、etcplus-api-exchange）。
+  若生产已引 mysql-connector-java，可省略 test scope 那份 MySQL 驱动。
+  若模块不做持久层/集成测试，可只保留 spring-boot-starter-test + wiremock-jre8。
+
+  对应样板：docs/testing/samples/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.etcplus</groupId>
+        <artifactId>etcplus-modules-system</artifactId>
+        <version>1.0.4</version>
+        <!-- 替换为实际 parent，如 etcplus-modules / etcplus-api 等 -->
+    </parent>
+
+    <artifactId>etcplus-modules-system</artifactId>
+    <description>业务模块测试依赖模板（勿直接作为模块 POM 使用）</description>
+
+    <dependencies>
+        <!-- ========== 单元 + Spring 测试（JUnit5 / Mockito / AssertJ / Jackson） ========== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- ========== Testcontainers：真实 MySQL 8（持久层 / 集成测试） ========== -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 集成测试若需 Redis（分布式锁等），取消注释 -->
+        <!--
+        <dependency>
+            <groupId>com.redis</groupId>
+            <artifactId>testcontainers-redis</artifactId>
+            <version>2.2.2</version>
+            <scope>test</scope>
+        </dependency>
+        -->
+
+        <!-- MySQL 驱动（测试用；生产 pom 已有则可删） -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- ========== WireMock：外部系统打桩（exchange / 乐企 / 银联等） ========== -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- ========== 可选：ApprovalTests 替代 GoldenFile.java（Java 8 用 11.x） ========== -->
+        <!--
+        <dependency>
+            <groupId>com.approvaltests</groupId>
+            <artifactId>approvaltests</artifactId>
+            <scope>test</scope>
+        </dependency>
+        -->
+    </dependencies>
+</project>

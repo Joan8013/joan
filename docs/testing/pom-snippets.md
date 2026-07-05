@@ -1,5 +1,8 @@
 # Maven 依赖 + 插件配置（适配 Spring Boot 2.3.7 + Java 8）
 
+> **完整 POM 模板**：见 [pom/parent-testing.xml](pom/parent-testing.xml) 与 [pom/module-testing.xml](pom/module-testing.xml)，合并说明见 [pom/README.md](pom/README.md)。  
+> 下文为片段速查；版本以 `pom/` 目录 XML 为准。
+
 把以下片段分别粘进对应位置。所有版本均兼容 Java 8。
 
 ## 1. 父 `pom.xml` 的 `<properties>`
