@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<!--
+  Checkstyle 抑制清单：对存量代码、生成代码、测试等豁免，聚焦新代码。
+  遗留库落地建议：初期可整体豁免 business 老域，只对新增/在改的类去掉豁免。
+-->
+<suppressions>
+    <!-- 生成代码/兼容目录（按需调整） -->
+    <suppress files="[\\/]generated[\\/]" checks=".*"/>
+
+    <!-- 测试代码放宽（测试有自身规范 testing.mdc） -->
+    <suppress files="[\\/]src[\\/]test[\\/]" checks="RegexpSinglelineJava"/>
+
+    <!-- 示例：暂时豁免某个存量老域，待逐步治理后移除本行 -->
+    <!-- <suppress files="com[\\/]etcplus[\\/]system[\\/]merchant[\\/]" checks=".*"/> -->
+</suppressions>

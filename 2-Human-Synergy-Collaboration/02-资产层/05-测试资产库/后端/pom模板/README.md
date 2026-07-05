@@ -6,6 +6,9 @@
 |---|---|
 | [parent-testing.xml](parent-testing.xml) | 根 POM：测试版本号、BOM、Surefire/Failsafe/JaCoCo/PIT 插件与 Profile |
 | [module-testing.xml](module-testing.xml) | 业务模块：test scope 依赖（Testcontainers / WireMock / spring-boot-starter-test） |
+| [静态检查配置.md](静态检查配置.md) | Checkstyle + SpotBugs + find-sec-bugs 的插件配置、`-Pquality-gate` Profile 与分阶段落地 |
+| [checkstyle.xml](checkstyle.xml) / [checkstyle-suppressions.xml](checkstyle-suppressions.xml) | Checkstyle 规则集与存量豁免（放 `config/checkstyle/`） |
+| [spotbugs-exclude.xml](spotbugs-exclude.xml) | SpotBugs 排除过滤器（放 `config/spotbugs/`） |
 
 ## 合并步骤（extend_platform）
 
